@@ -1,0 +1,69 @@
+---
+title: "Types"
+description: "TypeScript interfaces and schemas exposed by the Mio SDK."
+---
+
+## Configuration interfaces
+
+```typescript
+export interface MioClientSDKInitConfig {
+  clientId: string;
+  redirectUrl: string;
+  exchangeTokenUrl: string;
+}
+
+export interface MioServerSDKInitConfig {
+  clientId: string;
+  redirectUrl: string;
+  clientSecret: string;
+}
+```
+
+<ParamField path="clientId" type="string" required>
+Identifier of your Mio OAuth app.
+</ParamField>
+<ParamField path="redirectUrl" type="string" required>
+Exact redirect URL registered with Mio (including protocol).
+</ParamField>
+<ParamField path="exchangeTokenUrl" type="string" required>
+Backend endpoint used by the client SDK.
+</ParamField>
+<ParamField path="clientSecret" type="string" required>
+Confidential secret used only on the server.
+</ParamField>
+
+## Token response schema
+
+```typescript
+export interface MioOauth2TokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  idToken: string;
+  expiresIn: number;
+  tokenType: string;
+}
+```
+
+<ResponseField name="accessToken" type="string" required>
+Short-lived token for LLM calls.
+</ResponseField>
+<ResponseField name="refreshToken" type="string" required>
+Use it to mint new access tokens.
+</ResponseField>
+<ResponseField name="idToken" type="string" required>
+JWT that contains user identity claims.
+</ResponseField>
+<ResponseField name="expiresIn" type="number" required>
+Seconds until the access token expires.
+</ResponseField>
+<ResponseField name="tokenType" type="string" default="Bearer">
+HTTP scheme for the `Authorization` header.
+</ResponseField>
+
+## Chat response schema
+
+```typescript
+export type MioChatResponse = string;
+```
+
+The SDK validates the `/chat` payload with Zod (`MioChatResponseSchema`) and returns the `content` string directly so you can render it without parsing.

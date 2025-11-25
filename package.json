@@ -29,6 +29,7 @@
   "scripts": {
     "build": "tsc -b",
     "dev": "tsc -b --watch",
+    "docs": "cd docs && mint dev",
     "prettier:format": "prettier --write .",
     "prettier:check": "prettier --check .",
     "lint": "eslint .",

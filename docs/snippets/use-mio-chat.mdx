@@ -1,0 +1,34 @@
+```typescript components/MioButtons.tsx
+'use client';
+
+import { useState } from 'react';
+import { useMio } from '@mio/mio-sdk/react';
+
+export function MioButtons() {
+  const { connect, handleMioCallback, chat, isLoading } = useMio();
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+
+  const connectUser = async () => {
+    if (accessToken) return;
+    await connect();
+  };
+
+  const finishCallback = async () => {
+    const tokens = await handleMioCallback();
+    setAccessToken(tokens.accessToken);
+  };
+
+  const ask = async () => {
+    if (!accessToken) return;
+    await chat({ query: 'Draft an onboarding message', accessToken });
+  };
+
+  return (
+    <div className="flex gap-2">
+      <button onClick={connectUser} disabled={isLoading}>Connect</button>
+      <button onClick={finishCallback}>Handle callback</button>
+      <button onClick={ask} disabled={!accessToken}>Ask Mio</button>
+    </div>
+  );
+}
+```

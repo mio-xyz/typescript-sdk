@@ -1,0 +1,136 @@
+---
+title: "Frontend guide"
+description: "Initialize MioClientSDK, handle callbacks, and expose LLM features in React."
+---
+
+<Info>
+  This guide targets Next.js (App Router) but every concept works for Remix, Gatsby, or plain React as long as you run `MioProvider` in the browser.
+</Info>
+
+## Initialize once with `MioProvider`
+
+```typescript app/providers.tsx
+'use client';
+
+import type { ReactNode } from 'react';
+import { MioProvider } from '@mio/mio-sdk/react';
+
+const mioConfig = {
+  clientId: process.env.NEXT_PUBLIC_MIO_CLIENT_ID!,
+  redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/mio/callback`,
+  exchangeTokenUrl: '/api/exchange-token'
+};
+
+export function Providers({ children }: { children: ReactNode }) {
+  return <MioProvider config={mioConfig}>{children}</MioProvider>;
+}
+```
+
+<Tip>
+  The provider memoizes the SDK internally. If it detects a previous initialization it will reuse the existing singleton, so you can safely wrap every layout.
+</Tip>
+
+## Drive the OAuth flow with `useMio`
+
+```typescript app/(marketing)/connect/page.tsx
+'use client';
+
+import { useEffect } from 'react';
+import { useMio } from '@mio/mio-sdk/react';
+
+export default function ConnectPage() {
+  const { connect, handleMioCallback, isLoading, error } = useMio();
+
+  useEffect(() => {
+    handleMioCallback().catch(() => {
+      // Silently ignore when there is no `code` in the URL
+    });
+  }, [handleMioCallback]);
+
+  return (
+    <div>
+      <button onClick={connect} disabled={isLoading}>
+        {isLoading ? 'Redirecting…' : 'Connect with Mio'}
+      </button>
+      {error ? <p className="text-red-500">{error}</p> : null}
+    </div>
+  );
+}
+```
+
+<Warning>
+  `connect()` redirects the browser, so nothing after the call executes. Keep the handler isolated (e.g., a button click) to avoid half-finished state updates.
+</Warning>
+
+## Persist tokens on the client (optional)
+
+When `handleMioCallback` resolves, you receive `{ accessToken, refreshToken, expiresIn }`. Only keep the `accessToken` in memory or short-lived storage. A common pattern is to cache it in state and rely on the backend to refresh it when needed.
+
+```typescript
+const { handleMioCallback } = useMio();
+const [accessToken, setAccessToken] = useState<string | null>(null);
+
+const captureTokens = async () => {
+  const tokens = await handleMioCallback();
+  setAccessToken(tokens.accessToken);
+};
+```
+
+## Call the LLM from React
+
+```typescript components/ChatBox.tsx
+'use client';
+
+import { useState } from 'react';
+import { useMio } from '@mio/mio-sdk/react';
+
+export function ChatBox() {
+  const { chat, getSummary, error, isLoading } = useMio();
+  const [accessToken, setAccessToken] = useState('');
+  const [response, setResponse] = useState<string | null>(null);
+
+  const ask = async () => {
+    const output = await chat({ query: 'How should we greet this user?', accessToken });
+    setResponse(output);
+  };
+
+  const summarize = async () => {
+    const summary = await getSummary({ accessToken });
+    setResponse(summary);
+  };
+
+  return (
+    <div>
+      <textarea
+        value={accessToken}
+        onChange={event => setAccessToken(event.target.value)}
+        placeholder="Paste a valid access token"
+      />
+      <div className="flex gap-2">
+        <button onClick={ask} disabled={isLoading}>Send chat</button>
+        <button onClick={summarize} disabled={isLoading}>Load summary</button>
+      </div>
+      {error ? <p className="text-red-500">{error}</p> : null}
+      {response ? <pre>{response}</pre> : null}
+    </div>
+  );
+}
+```
+
+<Check>
+  `chat` returns the validated `content` string (`MioChatResponseSchema`). Use it directly in your UI without extra parsing.
+</Check>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="No code found in URL">
+    `handleMioCallback` throws when the query string lacks `code`. Wrap the call in `try/catch` or ignore the error during initial renders.
+  </Accordion>
+  <Accordion title="Token exchange failed">
+    Inspect the network request to `/api/exchange-token`. Most failures come from a missing `redirectUrl` or incorrect `clientSecret` on the server.
+  </Accordion>
+  <Accordion title="Chat calls fail with 401">
+    Ensure you are passing a valid `accessToken`. If you rely on cached tokens, refresh them on the server and send the new value back to the client.
+  </Accordion>
+</AccordionGroup>

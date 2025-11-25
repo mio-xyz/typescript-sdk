@@ -1,0 +1,90 @@
+---
+title: "Backend guide"
+description: "Securely exchange authorization codes, refresh tokens, and expose APIs with MioServerSDK."
+---
+
+<Info>
+  Run `MioServerSDK` anywhere Node.js executes: Next.js route handlers, Express, Fastify, AWS Lambdas, or long-lived workers. The SDK is environment-agnostic and depends only on the Fetch API.
+</Info>
+
+## Initialize once per process
+
+```typescript src/lib/mio/server.ts
+import { Mio } from '@mio/mio-sdk/server';
+
+export const mio = Mio.init({
+  clientId: process.env.MIO_CLIENT_ID!,
+  redirectUrl: process.env.MIO_REDIRECT_URL!,
+  clientSecret: process.env.MIO_CLIENT_SECRET!
+});
+```
+
+<Tip>
+  `Mio.init` returns the existing singleton if it has already been created. Import the shared module everywhere you need the instance.
+</Tip>
+
+## Exchange authorization codes
+
+```typescript app/api/exchange-token/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { mio } from '@/lib/mio/server';
+
+export async function POST(request: NextRequest) {
+  const { code } = await request.json();
+  const tokens = await mio.exchangeCodeForTokens(code);
+
+  await saveTokensForUser({
+    userId: await getUserIdFromSession(),
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
+    expiresAt: Date.now() + tokens.expiresIn * 1000
+  });
+
+  return NextResponse.json(tokens);
+}
+```
+
+<Warning>
+  The `redirectUrl` you pass to `MioServerSDK` must match the one configured in Mio. If they differ (even by a slash), the auth service rejects the exchange with `invalid_grant`.
+</Warning>
+
+## Refresh tokens automatically
+
+```typescript src/jobs/refresh-mio-token.ts
+import { mio } from '@/lib/mio/server';
+
+export async function refreshExpiredToken(refreshToken: string) {
+  const newTokens = await mio.refreshTokens(refreshToken);
+
+  await saveTokensForUser({
+    refreshToken: newTokens.refreshToken,
+    accessToken: newTokens.accessToken,
+    expiresAt: Date.now() + newTokens.expiresIn * 1000
+  });
+
+  return newTokens;
+}
+```
+
+<Note>
+  `refreshTokens` uses the same auth endpoint (`/api/auth/oauth2/token`) but swaps `grant_type` to `refresh_token`. Errors include detailed messages—log them to detect expired refresh tokens early.
+</Note>
+
+## Recommended API surface
+
+<AccordionGroup>
+  <Accordion title="POST /api/exchange-token">
+    Called by the browser immediately after `handleMioCallback`. Validates the `code`, exchanges it for tokens, and returns the full payload.
+  </Accordion>
+  <Accordion title="POST /api/refresh-token">
+    Accepts a `refreshToken` from trusted clients (usually your first-party app). Calls `mio.refreshTokens` and returns the new pair. Often protected by session cookies.
+  </Accordion>
+  <Accordion title="GET /api/mio/chat">
+    Optional proxy that calls `mio.chat` on behalf of thin clients if you do not want to expose access tokens to the browser.
+  </Accordion>
+</AccordionGroup>
+
+## Observability checklist
+
+- Log every call to `exchangeCodeForTokens` and `refreshTokens` with correlation IDs.
+- Monitor token expiry and schedule refreshes before `expiresIn` reaches zero (e.g., refresh at 80% of the lifetime).

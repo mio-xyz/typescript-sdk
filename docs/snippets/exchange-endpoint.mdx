@@ -1,0 +1,20 @@
+```typescript app/api/exchange-token/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { Mio } from '@mio/mio-sdk/server';
+
+const mio = Mio.init({
+  clientId: process.env.MIO_CLIENT_ID!,
+  redirectUrl: process.env.MIO_REDIRECT_URL!,
+  clientSecret: process.env.MIO_CLIENT_SECRET!
+});
+
+export async function POST(request: NextRequest) {
+  const { code } = await request.json();
+  const tokens = await mio.exchangeCodeForTokens(code);
+
+  // Persist refreshToken before returning it to the client
+  // await saveTokensForUser(userId, tokens);
+
+  return NextResponse.json(tokens);
+}
+```

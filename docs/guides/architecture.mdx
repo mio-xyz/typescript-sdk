@@ -1,0 +1,70 @@
+---
+title: "Architecture"
+description: "See how the Mio client, server, and LLM layers collaborate across a full OAuth + AI workflow."
+---
+
+<Info>
+  Mio splits responsibilities across three runtimes: `MioClientSDK` in the browser, `MioServerSDK` on trusted infrastructure, and shared helpers (`BaseMioSDK`) that call the LLM with validated payloads.
+</Info>
+
+## Request lifecycle
+
+<Steps>
+  <Step title="Redirect the user">
+    Call `connect()` from `MioClientSDK` (or via `useMio`) to send the user to `dashboard.mio.xyz`. Keep `clientId` and `redirectUrl` in sync with the values configured in Mio so the query string stays valid.
+  </Step>
+  <Step title="Handle the callback">
+    `handleMioCallback()` extracts the `code` parameter from the URL without reloading the page. The helper also cleans the query string by calling `window.history.replaceState`.
+  </Step>
+  <Step title="Exchange the code on the server">
+    Forward the code to your backend endpoint. `MioServerSDK.exchangeCodeForTokens` posts to `auth.mio.xyz` with your `clientSecret`, validates the response with `MioOauth2TokenResponseSchema`, and returns typed tokens.
+  </Step>
+  <Step title="Persist and refresh tokens">
+    Save `accessToken`, `refreshToken`, and `expiresIn` with the user record. Call `refreshTokens` whenever the access token expires; the helper hits the same auth endpoint with `grant_type=refresh_token`.
+  </Step>
+  <Step title="Call the LLM">
+    Pass a valid `accessToken` to `chat` or `getUserSummary`. Both methods share the authenticated fetch defined in `BaseMioSDK` and automatically include the required `Authorization` header.
+  </Step>
+</Steps>
+
+## Responsibilities by layer
+
+<Columns cols={3}>
+  <Card title="Client" icon="laptop">
+    Owns user interaction, triggers OAuth, and stores short-lived state (e.g., cached `accessToken`). Never stores the `refreshToken`.
+  </Card>
+  <Card title="Backend" icon="server">
+    Holds secrets, exchanges codes, refreshes tokens, and decides how to persist user data or trigger webhooks.
+  </Card>
+  <Card title="LLM" icon="comments">
+    Serves `/chat` and `/summary`. All requests are authenticated through `BaseMioSDK`, so traceability always points back to a verified user.
+  </Card>
+</Columns>
+
+## Security checklist
+
+<AccordionGroup>
+  <Accordion title="Store secrets outside of the repo">
+    Keep `MIO_CLIENT_SECRET` in your secret manager (Vercel env vars, AWS SSM, Doppler, etc.). Never pass it to `MioClientSDK` or ship it to the browser.
+  </Accordion>
+  <Accordion title="Use HTTPS everywhere">
+    Your `redirectUrl`, backend exchange route, and public app URL must all be HTTPS in production to avoid leaking the authorization code.
+  </Accordion>
+  <Accordion title="Persist refresh tokens securely">
+    Encrypt `refreshToken` at rest and rotate keys periodically. If a token is compromised, revoke it in Mio's dashboard and clear the local copy.
+  </Accordion>
+  <Accordion title="Throttle chat calls">
+    `chat` uses `fetch` under the hood. Implement rate limiting on your API layer if you expose it to untrusted clients to avoid abuse.
+  </Accordion>
+</AccordionGroup>
+
+## LLM request anatomy
+
+```typescript
+const response = await MioClientSDK.getInstance().chat({
+  query: 'Summarize the last interaction',
+  accessToken
+});
+```
+
+`chat` (and `getUserSummary`) automatically prepares the authenticated request, validates the payload with `MioChatResponseSchema`, and returns the LLM content string.

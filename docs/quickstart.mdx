@@ -1,0 +1,168 @@
+---
+title: "Quickstart"
+description: "Connect your frontend and backend to Mio, exchange tokens securely, and call the LLM in minutes."
+---
+
+<Info>
+  **Prerequisites**: Mio dashboard access, a redirect URL registered with Mio, Node.js 18+, and a server environment where you can host the code-exchange route.
+</Info>
+
+## Ship a working flow in four steps
+
+<Steps>
+  <Step title="Install the SDK">
+    Add the Mio SDK to your workspace (monorepos install it once at the root).
+
+    <CodeGroup>
+```bash npm
+npm install @mio/mio-sdk
+```
+```bash yarn
+yarn add @mio/mio-sdk
+```
+```bash pnpm
+pnpm add @mio/mio-sdk
+```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Configure environment variables">
+    Provide the Mio credentials on both the browser and the server. Prefix client-side values with `NEXT_PUBLIC_` (or your framework equivalent).
+
+    <Snippet src="/snippets/env-variables" />
+
+    <Warning>
+      Never expose `MIO_CLIENT_SECRET` to the browser. Keep it next to `MioServerSDK` so tokens are exchanged safely.
+    </Warning>
+  </Step>
+
+  <Step title="Create the token exchange endpoint">
+    Initialize `MioServerSDK` once, then reuse the instance inside the route that swaps authorization codes for tokens.
+
+<Tabs>
+<Tab title="Next.js route handler">
+
+<Snippet src="/snippets/exchange-endpoint" />
+
+</Tab>
+<Tab title="Express endpoint">
+
+```typescript src/routes/mio.ts
+import express from 'express';
+import { Mio } from '@mio/mio-sdk/server';
+
+const router = express.Router();
+const mio = Mio.init({
+  clientId: process.env.MIO_CLIENT_ID!,
+  redirectUrl: process.env.MIO_REDIRECT_URL!,
+  clientSecret: process.env.MIO_CLIENT_SECRET!
+});
+
+router.post('/api/exchange-token', async (req, res) => {
+  const tokens = await mio.exchangeCodeForTokens(req.body.code);
+  res.json(tokens);
+});
+
+export default router;
+```
+
+</Tab>
+</Tabs>
+
+    <Tip>
+      Store `refreshToken` alongside your user record so you can call `mio.refreshTokens` later without asking the user to reconnect.
+    </Tip>
+  </Step>
+
+  <Step title="Wire the frontend">
+    Wrap your React tree with `MioProvider`, then control the OAuth + LLM flow through `useMio`.
+
+```typescript app/providers.tsx
+'use client';
+
+import type { ReactNode } from 'react';
+import { MioProvider } from '@mio/mio-sdk/react';
+
+const mioConfig = {
+  clientId: process.env.NEXT_PUBLIC_MIO_CLIENT_ID!,
+  redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/mio/callback`,
+  exchangeTokenUrl: '/api/exchange-token'
+};
+
+export function Providers({ children }: { children: ReactNode }) {
+  return <MioProvider config={mioConfig}>{children}</MioProvider>;
+}
+```
+
+```typescript app/page.tsx
+'use client';
+
+import { useState } from 'react';
+import { useMio } from '@mio/mio-sdk/react';
+
+export default function HomePage() {
+  const { connect, handleMioCallback, chat, isLoading } = useMio();
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+
+  const handleConnect = async () => {
+    if (accessToken) {
+      return;
+    }
+    await connect();
+  };
+
+  const completeCallback = async () => {
+    const tokens = await handleMioCallback();
+    setAccessToken(tokens.accessToken);
+  };
+
+  const ask = async () => {
+    if (!accessToken) {
+      throw new Error('Connect first so we can get an access token');
+    }
+    const response = await chat({ query: 'Summarize the user', accessToken });
+    console.log(response);
+  };
+
+  return (
+    <section>
+      <button onClick={handleConnect} disabled={isLoading}>
+        {isLoading ? 'Connecting…' : 'Connect with Mio'}
+      </button>
+      <button onClick={completeCallback}>Handle callback</button>
+      <button onClick={ask}>Ask Mio</button>
+    </section>
+  );
+}
+```
+
+    <Snippet src="/snippets/use-mio-chat" />
+
+    <Check>
+      Visit the redirect URL after Mio sends you back, call `handleMioCallback`, and confirm `chat` logs content in the console.
+    </Check>
+  </Step>
+</Steps>
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Architecture" icon="map" href="/guides/architecture">
+    Understand how OAuth, token refresh, and LLM calls flow through your stack.
+  </Card>
+  <Card title="Frontend guide" icon="code" href="/guides/frontend">
+    Optimize the React experience with deep dives into `connect` and `handleMioCallback`.
+  </Card>
+  <Card title="Backend guide" icon="terminal" href="/guides/backend">
+    Learn how to persist refresh tokens and rotate credentials safely.
+  </Card>
+  <Card title="React + LLM guide" icon="comments" href="/guides/react-llm">
+    Build conversational UI patterns with `useMio`.
+  </Card>
+  <Card title="Client API reference" icon="book" href="/api-reference/client-sdk">
+    Every client method, parameter, and response in one place.
+  </Card>
+  <Card title="Server API reference" icon="server" href="/api-reference/server-sdk">
+    Learn when to call `exchangeCodeForTokens` vs `refreshTokens`.
+  </Card>
+</CardGroup>

@@ -1,0 +1,103 @@
+---
+title: "React SDK"
+description: "Reference for MioProvider and the useMio hook."
+---
+
+## Components
+
+### `MioProvider`
+
+Wraps your React tree and ensures `MioClientSDK` is initialized exactly once.
+
+```typescript app/providers.tsx
+'use client';
+
+import type { ReactNode } from 'react';
+import { MioProvider } from '@mio/mio-sdk/react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return (
+    <MioProvider
+      config={{
+        clientId: process.env.NEXT_PUBLIC_MIO_CLIENT_ID!,
+        redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/mio/callback`,
+        exchangeTokenUrl: '/api/exchange-token'
+      }}
+    >
+      {children}
+    </MioProvider>
+  );
+}
+```
+
+<ParamField body="config.clientId" type="string" required>
+Same as `MioClientSDK.init`.
+</ParamField>
+<ParamField body="config.redirectUrl" type="string" required>
+Redirect URL configured in Mio.
+</ParamField>
+<ParamField body="config.exchangeTokenUrl" type="string" required>
+Backend endpoint that swaps authorization codes for tokens.
+</ParamField>
+
+## Hook: `useMio()`
+
+Returns state helpers for driving the OAuth flow and LLM calls.
+
+<ResponseField name="isLoading" type="boolean" required>
+True while a request (connect, callback, chat, summary) is in flight.
+</ResponseField>
+<ResponseField name="error" type="string | null" required>
+Last error message produced by the hook.
+</ResponseField>
+<ResponseField name="connect" type="() => Promise<void>" required>
+Kicks off the OAuth flow. Redirects immediately.
+</ResponseField>
+<ResponseField name="handleMioCallback" type="() => Promise<MioOauth2TokenResponse>" required>
+Parses the authorization code and exchanges it via the configured backend.
+</ResponseField>
+<ResponseField name="chat" type="(options: ChatRequestOptions) => Promise<string>" required>
+Calls the LLM with the provided query.
+</ResponseField>
+<ResponseField name="getSummary" type="(options: MioSDKOptions) => Promise<string | null>" required>
+Fetches the latest summary for the user.
+</ResponseField>
+
+### Example usage
+
+```typescript components/MioActions.tsx
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useMio } from '@mio/mio-sdk/react';
+
+export function MioActions() {
+  const { connect, handleMioCallback, chat, isLoading, error } = useMio();
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    handleMioCallback()
+      .then(tokens => setAccessToken(tokens.accessToken))
+      .catch(() => undefined);
+  }, [handleMioCallback]);
+
+  return (
+    <div>
+      <button onClick={connect} disabled={isLoading}>
+        {isLoading ? 'Redirecting…' : 'Connect with Mio'}
+      </button>
+      <button
+        onClick={() => accessToken && chat({ query: 'Greet the user', accessToken })}
+        disabled={!accessToken || isLoading}
+      >
+        Ask the LLM
+      </button>
+      {error ? <p className="text-red-500">{error}</p> : null}
+    </div>
+  );
+}
+```
+
+<Note>
+  Because the hook invokes the same underlying SDK as `MioClientSDK`, it inherits all environment overrides (`MIO_DASHBOARD_URL`, `MIO_LLM_URL`).
+</Note>

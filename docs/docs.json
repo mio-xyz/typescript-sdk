@@ -1,0 +1,124 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Mio SDK documentation",
+  "colors": {
+    "primary": "#16A34A",
+    "light": "#07C983",
+    "dark": "#15803D"
+  },
+  "favicon": "/favicon.png",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "index",
+              "quickstart",
+              "guides/architecture"
+            ]
+          },
+          {
+            "group": "Frontend",
+            "pages": [
+              "guides/frontend",
+              "guides/react-llm"
+            ]
+          },
+          {
+            "group": "Backend",
+            "pages": [
+              "guides/backend"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "groups": [
+          {
+            "group": "Client",
+            "pages": [
+              "api-reference/client-sdk"
+            ]
+          },
+          {
+            "group": "Server",
+            "pages": [
+              "api-reference/server-sdk"
+            ]
+          },
+          {
+            "group": "React",
+            "pages": [
+              "api-reference/react-sdk"
+            ]
+          },
+          {
+            "group": "Types",
+            "pages": [
+              "api-reference/types"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Book a call",
+          "href": "https://cal.com/arthaud/30",
+          "icon": "phone"
+        },
+        {
+          "anchor": "Join the waitlist",
+          "href": "https://tally.so/r/w4laGO",
+          "icon": "rss"
+        },
+        {
+          "anchor": "Blog",
+          "href": "https://www.mio.xyz/writing",
+          "icon": "newspaper"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:support@mio.xyz"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://dashboard.mio.xyz"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/mio-xyz/mio-sdk",
+      "linkedin": "https://www.linkedin.com/company/mioxyz"
+    }
+  }
+}
