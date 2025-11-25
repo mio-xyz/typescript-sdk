@@ -1,0 +1,120 @@
+---
+title: "React + LLM guide"
+description: "Use MioProvider and useMio to build conversational UI and summaries without wiring boilerplate."
+---
+
+<Info>
+  Once users connect, `useMio` exposes helpers for chat, summaries, and errors. This guide shows how to compose them into production-ready UI.
+</Info>
+
+## Build a chat composer
+
+```typescript components/MioComposer.tsx
+'use client';
+
+import { useState } from 'react';
+import { useMio } from '@mio/mio-sdk/react';
+
+export function MioComposer({ accessToken }: { accessToken: string }) {
+  const { chat, isLoading, error } = useMio();
+  const [prompt, setPrompt] = useState('Draft a warm intro email.');
+  const [answer, setAnswer] = useState<string | null>(null);
+
+  const sendPrompt = async () => {
+    const response = await chat({ query: prompt, accessToken });
+    setAnswer(response);
+  };
+
+  return (
+    <div className="space-y-4">
+      <textarea
+        value={prompt}
+        onChange={event => setPrompt(event.target.value)}
+        className="w-full rounded border border-zinc-200 p-3"
+      />
+      <button onClick={sendPrompt} disabled={isLoading}>
+        {isLoading ? 'Generating…' : 'Send to Mio'}
+      </button>
+      {error ? <p className="text-red-500">{error}</p> : null}
+      {answer ? <pre>{answer}</pre> : null}
+    </div>
+  );
+}
+```
+
+<Tip>
+  The hook toggles `isLoading` before and after each request. Use it to disable controls and show skeletons so users cannot fire duplicate prompts.
+</Tip>
+
+## Fetch summaries on demand
+
+```typescript components/SummaryCard.tsx
+'use client';
+
+import { useState } from 'react';
+import { useMio } from '@mio/mio-sdk/react';
+
+export function SummaryCard({ accessToken }: { accessToken: string }) {
+  const { getSummary, isLoading } = useMio();
+  const [summary, setSummary] = useState<string | null>(null);
+
+  const loadSummary = async () => {
+    const value = await getSummary({ accessToken });
+    setSummary(value);
+  };
+
+  return (
+    <article className="rounded border border-zinc-200 p-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">User summary</h3>
+        <button onClick={loadSummary} disabled={isLoading}>
+          Refresh
+        </button>
+      </div>
+      <p className="mt-2 whitespace-pre-line text-sm text-zinc-600">
+        {summary ?? 'No summary yet'}
+      </p>
+    </article>
+  );
+}
+```
+
+<Warning>
+  `getSummary` returns `string | null`. Always guard against `null` to avoid rendering `undefined` in the UI.
+</Warning>
+
+## Pattern: optimistic chats with history
+
+<Steps>
+  <Step title="Track pending prompts">
+    Store the prompt locally so you can display it immediately while Mio processes the request.
+  </Step>
+  <Step title="Append resolved content">
+    When `chat` resolves, merge the response into your chat history array. Because `chat` returns plain text, you can store it together with metadata like `role` or `timestamp`.
+  </Step>
+  <Step title="Handle failures consistently">
+    `useMio` populates `error` when a fetch fails. Surface it inline (e.g., “Session expired, please reconnect”) and fall back to `connect()` if you suspect the access token is invalid.
+  </Step>
+</Steps>
+
+## Sample conversation state
+
+```typescript
+const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+const { chat, error } = useMio();
+
+async function sendMessage(content: string, accessToken: string) {
+  setMessages(prev => [...prev, { role: 'user', content }]);
+
+  try {
+    const reply = await chat({ query: content, accessToken });
+    setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+  } catch (err) {
+    console.error('Chat failed', err);
+  }
+}
+```
+
+<Note>
+  The hook never stores your messages. Keep everything you need in your own state so you can implement transcripts, streaming, or shareable links without waiting on SDK changes.
+</Note>

@@ -1,0 +1,93 @@
+---
+title: "Server SDK"
+description: "Node.js API for exchanging codes, refreshing tokens, and proxying LLM calls."
+---
+
+## Initialization
+
+```typescript src/lib/mio/server.ts
+import { Mio } from '@mio/mio-sdk/server';
+
+export const mio = Mio.init({
+  clientId: process.env.MIO_CLIENT_ID!,
+  redirectUrl: process.env.MIO_REDIRECT_URL!,
+  clientSecret: process.env.MIO_CLIENT_SECRET!
+});
+```
+
+<Info>
+  `Mio.init` is idempotent on the server. Call it during module evaluation or process startup and reuse `Mio.getInstance()` everywhere else.
+</Info>
+
+### Config parameters
+
+<ParamField body="clientId" type="string" required>
+App identifier from Mio.
+</ParamField>
+<ParamField body="redirectUrl" type="string" required>
+Must match the redirect configured in Mio.
+</ParamField>
+<ParamField body="clientSecret" type="string" required>
+Only store on the server. Used to authenticate token exchanges.
+</ParamField>
+## Methods
+
+### `exchangeCodeForTokens(code: string): Promise<MioOauth2TokenResponse>`
+
+Swaps an authorization code for tokens using the confidential client credentials.
+
+<RequestExample>
+```typescript
+const tokens = await mio.exchangeCodeForTokens(code);
+await userStore.save({
+  accessToken: tokens.accessToken,
+  refreshToken: tokens.refreshToken,
+  expiresAt: Date.now() + tokens.expiresIn * 1000
+});
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success
+{
+  "accessToken": "atk_123",
+  "refreshToken": "rtk_123",
+  "idToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 3600,
+  "tokenType": "Bearer"
+}
+```
+</ResponseExample>
+
+<Warning>
+  Errors include the underlying OAuth message. Log them before rethrowing so you can differentiate `invalid_grant` from network issues.
+</Warning>
+
+### `refreshTokens(refreshToken: string): Promise<MioOauth2TokenResponse>`
+
+Mint a new access token (and refresh token) without user interaction.
+
+<ParamField body="refreshToken" type="string" required>
+The token you persisted from the previous exchange.
+</ParamField>
+
+### `chat({ query, accessToken }): Promise<string>`
+
+Server-side wrappers share the same implementation as the client version. Use them when you run long operations or batch prompts on the backend.
+
+### `getUserSummary({ accessToken }): Promise<string | null>`
+
+Retrieves the latest summary object for the given user.
+
+## Error matrix
+
+| Method | Error | Description |
+| --- | --- | --- |
+| `exchangeCodeForTokens` | `invalid_grant` | Redirect URL or client credentials mismatch |
+| `exchangeCodeForTokens` | `invalid_request` | Missing `code` body parameter |
+| `refreshTokens` | `invalid_grant` | Expired or revoked refresh token |
+| `chat`/`getUserSummary` | `401 Unauthorized` | Access token expired or malformed |
+
+<Note>
+  All methods throw standard `Error` objects. Wrap calls with try/catch and map them to HTTP status codes that make sense for your API surface.
+</Note>

@@ -1,0 +1,112 @@
+---
+title: "Client SDK"
+description: "Browser-side API for starting the Mio OAuth flow and calling the LLM."
+---
+
+## Initialization
+
+```typescript
+import { MioClientSDK } from '@mio/mio-sdk';
+
+const client = MioClientSDK.init({
+  clientId: process.env.NEXT_PUBLIC_MIO_CLIENT_ID!,
+  redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/mio/callback`,
+  exchangeTokenUrl: '/api/exchange-token'
+});
+```
+
+<Warning>
+  `MioClientSDK.init` throws if you call it more than once per browser session. Use `MioClientSDK.getInstance()` (or `useMio`) everywhere after the initial call.
+</Warning>
+
+### Config parameters
+
+<ParamField body="clientId" type="string" required>
+OAuth application ID from the Mio dashboard. Exposed to the browser.
+</ParamField>
+
+<ParamField body="redirectUrl" type="string" required>
+Absolute URL registered in Mio. The SDK uses it when redirecting users to `/auth`.
+</ParamField>
+
+<ParamField body="exchangeTokenUrl" type="string" required>
+Relative or absolute URL of your backend route that exchanges authorization codes for tokens.
+</ParamField>
+
+## Methods
+
+### `connect(): Promise<void>`
+
+Redirects the browser to the Mio dashboard with the configured parameters. Use it inside a click handler.
+
+### `handleMioCallback(): Promise<MioOauth2TokenResponse>`
+
+Exposed via `useMio`. Reads the `code` query parameter, clears it from the URL, forwards it to `exchangeTokenUrl`, and returns the parsed tokens.
+
+<ResponseField name="accessToken" type="string" required>
+Bearer token used for subsequent `chat` or `getUserSummary` calls.
+</ResponseField>
+<ResponseField name="refreshToken" type="string" required>
+Long-lived token that allows the backend to mint a new access token.
+</ResponseField>
+<ResponseField name="expiresIn" type="number" required>
+Lifetime of the access token (in seconds).
+</ResponseField>
+<ResponseField name="tokenType" type="string" default="Bearer">
+Auth scheme for downstream APIs.
+</ResponseField>
+<ResponseField name="idToken" type="string">
+OpenID token (JWT) that contains the user identity.
+</ResponseField>
+
+### `exchangeCode(code: string): Promise<MioOauth2TokenResponse>`
+
+Low-level helper that powers `handleMioCallback`. Call it manually if you want to parse the URL yourself.
+
+<ParamField body="code" type="string" required>
+Authorization code received from Mio after the user approves access.
+</ParamField>
+
+### `chat({ query, accessToken }): Promise<string>`
+
+Sends a prompt to Mio's LLM and returns the validated `content` string.
+
+<ParamField body="query" type="string" required>
+Prompt or question sent to the LLM.
+</ParamField>
+<ParamField body="accessToken" type="string" required>
+Token returned by `handleMioCallback` or your backend.
+</ParamField>
+
+<RequestExample>
+```typescript
+const response = await MioClientSDK.getInstance().chat({
+  query: 'Summarize the user profile',
+  accessToken
+});
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success
+"Spent 12 years in fintech, prefers async updates, and owns the ACME workspace."
+```
+</ResponseExample>
+
+### `getUserSummary({ accessToken }): Promise<string | null>`
+
+Fetches the latest LLM-generated user summary. Returns `null` when no summary exists.
+
+## Error handling
+
+<AccordionGroup>
+  <Accordion title="Not initialized">
+    `MioClientSDK.getInstance()` throws if you skip `MioClientSDK.init`. Initialize inside a provider or at app bootstrap.
+  </Accordion>
+  <Accordion title="Token exchange failed">
+    `exchangeCode` throws when the backend responds with a non-2xx status. Check that `exchangeTokenUrl` is reachable and that your backend logs show the real auth error.
+  </Accordion>
+  <Accordion title="LLM request failed">
+    `chat` and `getUserSummary` throw a generic error message when the fetch returns a non-2xx code. Inspect your browser network panel to see if the access token expired (401) or if the payload was invalid (400).
+  </Accordion>
+</AccordionGroup>

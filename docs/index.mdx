@@ -1,0 +1,74 @@
+---
+title: "Introduction"
+description: "Understand how the Mio SDK stitches together OAuth, token storage, and LLM capabilities so you can launch user-facing AI features quickly."
+---
+
+<Info>
+  Mio exposes three SDK surfaces: a **browser client** that drives OAuth, a **server SDK** that secures tokens, and **React helpers** that talk to the LLM. Keep this page open while you prototype so you always know where each responsibility lives.
+</Info>
+
+## Build secure AI workflows faster
+
+Mio packages the entire authentication loop (OAuth → token exchange → LLM call) so you can stay focused on product work. You configure the SDK once per surface, then re-use the same helpers in every route, component, or server action that needs user data.
+
+<Columns cols={2}>
+  <Card
+    title="Browser & React"
+    icon="window"
+  >
+    Use `MioClientSDK` plus `MioProvider` and `useMio` to start the OAuth flow, capture the callback, and invoke Mio's chat + summary endpoints directly from Next.js or any React tree.
+  </Card>
+  <Card
+    title="Server & API routes"
+    icon="server"
+  >
+    Configure `MioServerSDK` once at process start, exchange codes securely, refresh tokens, and inject verified `accessToken` values into your data layer or queues.
+  </Card>
+</Columns>
+
+## Choose the best starting point
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Ship a working OAuth + LLM integration in under 10 minutes.
+  </Card>
+  <Card title="Architecture" icon="diagram-project" href="/guides/architecture">
+    See how the client, backend, and LLM services interact at runtime.
+  </Card>
+  <Card title="Frontend guide" icon="bolt" href="/guides/frontend">
+    Wire `MioClientSDK` inside Next.js, Remix, or any React SPA.
+  </Card>
+  <Card title="Backend guide" icon="shield-halved" href="/guides/backend">
+    Harden server routes, store tokens, and refresh them safely.
+  </Card>
+  <Card title="React + LLM" icon="comments" href="/guides/react-llm">
+    Build chat surfaces and context-aware UI with `useMio`.
+  </Card>
+  <Card title="API reference" icon="book" href="/api-reference/client-sdk">
+    Look up every method, option, and type exposed by the SDK.
+  </Card>
+</CardGroup>
+
+## What you ship with Mio
+
+- **Consistent OAuth flow** – redirect users with `connect()`, read the callback, and keep URLs clean.
+- **Battle-tested token exchange** – hide `clientSecret` on the server, refresh on schedule, and reuse the same helper everywhere.
+- **LLM primitives** – call `chat` and `getUserSummary` with automatic schema validation and helpful error messages.
+
+<Tip>
+  Prototype with the hosted defaults (`dashboard.mio.xyz`, `auth.mio.xyz`, `llm.mio.xyz`) and only override URLs when you move to a private environment.
+</Tip>
+
+## Next up
+
+<Steps>
+  <Step title="Complete the quickstart">
+    Install `@mio/mio-sdk`
+  </Step>
+  <Step title="Map responsibilities">
+    Use the architecture guide to decide where to run token refreshes, how to persist user state, and where to surface chat outputs.
+  </Step>
+  <Step title="Go deep with the API reference">
+    Each method documents required params, expected responses, and common failure modes with ready-to-copy snippets.
+  </Step>
+</Steps>
