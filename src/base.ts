@@ -82,6 +82,10 @@ export abstract class BaseMioSDK {
       throw new Error('Failed to get user summary');
     }
 
-    return await response.json();
+    const data = await response.json();
+    if (!data || !data.summary) {
+      throw new Error('Invalid summary response');
+    }
+    return data.summary;
   }
 }
