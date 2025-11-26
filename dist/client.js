@@ -38,7 +38,7 @@ export class MioClientSDK extends BaseMioSDK {
             redirect_uri: this.config.redirectUrl,
             scope: this.config.scope ?? 'openid profile email offline_access'
         });
-        window.location.href = `${this.config.mioDashboardUrl}/v1/connect?${params.toString()}`;
+        window.location.href = `${this.config.mioDashboardUrl}/connect?${params.toString()}`;
     }
     // Extract code from URL (client-only)
     _extractCodeFromUrl() {
