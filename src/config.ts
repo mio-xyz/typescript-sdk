@@ -8,15 +8,15 @@ export interface MioBaseSDKInitConfig {
 
 export interface MioBaseSDKConfig extends MioBaseSDKInitConfig {
   scope: string;
-  llmUrl: string;
+  mioApiUrl: string;
 }
 
 export interface MioClientSDKInitConfig extends MioBaseSDKInitConfig {
   exchangeTokenUrl: string;
+  mioDashboardUrl?: string;
 }
 
 export interface MioClientSDKConfig extends MioBaseSDKConfig, MioClientSDKInitConfig {
-  dashboardUrl: string;
 }
 
 export interface MioServerSDKInitConfig extends MioBaseSDKInitConfig {
@@ -25,9 +25,7 @@ export interface MioServerSDKInitConfig extends MioBaseSDKInitConfig {
 
 // Server SDK config (with client secret)
 export interface MioServerSDKConfig extends MioServerSDKInitConfig, MioBaseSDKConfig {
-  authUrl: string;
 }
 
-export const DEFAULT_AUTH_URL = 'https://auth.mio.xyz';
-export const DEFAULT_DASHBOARD_URL = 'https://dashboard.mio.xyz';
-export const DEFAULT_LLM_URL = 'https://llm.mio.xyz';
+export const DEFAULT_MIO_API_URL = 'https://api.mio.xyz';
+export const DEFAULT_MIO_DASHBOARD_URL = 'https://dashboard.mio.xyz';

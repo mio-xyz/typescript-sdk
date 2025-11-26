@@ -1,2 +1,61 @@
+# Dependencies
 node_modules/
+
+# Build output
+build/
+out/
+lib/
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+.nyc_output/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Cache
+.cache/
 .turbo/
+.eslintcache
+.npm/
+
+# Testing
+.jest/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+.DS_Store

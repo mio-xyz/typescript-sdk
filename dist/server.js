@@ -1,5 +1,5 @@
 import { BaseMioSDK } from './base.js';
-import { DEFAULT_AUTH_URL, DEFAULT_LLM_URL } from './config.js';
+import { DEFAULT_MIO_API_URL } from './config.js';
 import { MioOauth2TokenResponseSchema } from './validation.js';
 /**
  * Backend SDK for Mio authentication and API access
@@ -13,8 +13,7 @@ export class MioServerSDK extends BaseMioSDK {
         const finalConfig = {
             ...config,
             scope: 'openid profile email offline_access',
-            authUrl: process.env.MIO_AUTH_URL || DEFAULT_AUTH_URL,
-            llmUrl: process.env.MIO_LLM_URL || DEFAULT_LLM_URL
+            mioApiUrl: process.env.MIO_API_URL || DEFAULT_MIO_API_URL
         };
         super(finalConfig);
         this.config = finalConfig;
@@ -39,7 +38,7 @@ export class MioServerSDK extends BaseMioSDK {
     async exchangeCodeForTokens(code) {
         try {
             const config = this.config;
-            const response = await fetch(`${config.authUrl}/api/auth/oauth2/token`, {
+            const response = await fetch(`${config.mioApiUrl}/v1/auth/oauth2/token`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -79,7 +78,7 @@ export class MioServerSDK extends BaseMioSDK {
     async refreshTokens(refreshToken) {
         try {
             const config = this.config;
-            const response = await fetch(`${config.authUrl}/api/auth/oauth2/token`, {
+            const response = await fetch(`${config.mioApiUrl}/v1/auth/oauth2/token`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

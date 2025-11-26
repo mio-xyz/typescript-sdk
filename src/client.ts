@@ -1,7 +1,7 @@
 import { BaseMioSDK } from './base.js';
 import {
-  DEFAULT_DASHBOARD_URL,
-  DEFAULT_LLM_URL,
+  DEFAULT_MIO_API_URL,
+  DEFAULT_MIO_DASHBOARD_URL,
   type MioClientSDKConfig,
   type MioClientSDKInitConfig
 } from './config.js';
@@ -19,11 +19,8 @@ export class MioClientSDK extends BaseMioSDK {
     const finalConfig = {
       ...config,
       scope: 'openid profile email offline_access',
-      dashboardUrl:
-        process.env.MIO_DASHBOARD_URL ||
-        process.env.NEXT_PUBLIC_MIO_DASHBOARD_URL ||
-        DEFAULT_DASHBOARD_URL,
-      llmUrl: process.env.MIO_LLM_URL || process.env.NEXT_PUBLIC_MIO_LLM_URL || DEFAULT_LLM_URL
+      mioApiUrl: process.env.MIO_API_URL || process.env.NEXT_PUBLIC_MIO_API_URL || DEFAULT_MIO_API_URL,
+      mioDashboardUrl: process.env.MIO_DASHBOARD_URL || process.env.NEXT_PUBLIC_MIO_DASHBOARD_URL || DEFAULT_MIO_DASHBOARD_URL
     } as MioClientSDKConfig;
     super(finalConfig);
     this.config = finalConfig;
@@ -51,7 +48,7 @@ export class MioClientSDK extends BaseMioSDK {
       redirect_uri: this.config.redirectUrl,
       scope: this.config.scope ?? 'openid profile email offline_access'
     });
-    window.location.href = `${this.config.dashboardUrl}/auth?${params.toString()}`;
+    window.location.href = `${this.config.mioDashboardUrl}/connect?${params.toString()}`;
   }
 
   // Extract code from URL (client-only)
