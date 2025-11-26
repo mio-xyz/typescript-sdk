@@ -7,7 +7,7 @@ export declare function useMio(): {
     connect: () => Promise<void>;
     handleMioCallback: () => Promise<{
         accessToken: string;
-        idToken: string;
+        idToken: string | undefined;
         expiresIn: number;
         scope: string;
         tokenType: string;

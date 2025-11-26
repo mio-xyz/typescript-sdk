@@ -2,7 +2,7 @@ import z, { number, object, string } from 'zod/v4';
 
 export const MioOauth2TokenResponseSchema = object({
   access_token: string(),
-  id_token: string(),
+  id_token: string().optional(),
   expires_in: number(),
   scope: string(),
   token_type: string(),
