@@ -1,43 +1,48 @@
 ---
-title: "Introduction"
-description: "Understand how the Mio SDK stitches together OAuth, token storage, and personalized Mio Context so you can launch user-facing AI features quickly."
+title: "Welcome to Mio"
+description: "The Mio SDK makes AI apps personal."
 ---
 
-Mio turns signals from tools like email and calendar into concrete facts about each person—what they care about, how they work, and small details like whether they have a pet or a side hobby. It packages these insights as **Mio Context** so your product can speak to every user like an assistant that already knows them, even on the very first interaction.
+> Increase your app’s retention with context seeding.  
+> Mio derives user context from email and calendar, enabling AI apps to personalise their experience from the very first interaction.
+
+## What is Mio?
+
+Mio is a context layer for AI apps. It gives developers access to user preferences, letting them build truly personal experiences.
+
+For the user, it’s a simple sign in with Google at onboarding.
+
+For developers, it’s a tool call.
 
 <Info>
-  Mio spans three surfaces: a browser client that drives OAuth, a server runtime that secures tokens, and React helpers that plug Mio Context into your UI. Keep this overview nearby while you prototype so you always know which layer owns each responsibility.
+  Mio spans three surfaces: a browser client that drives OAuth, a server runtime that secures tokens, and React helpers that plug Mio Context into your UI.
 </Info>
 
-## Welcome to Mio
+## How the integration works
 
-Mio packages the entire OAuth-to-context loop so you can focus on product work. Configure it once per runtime and reuse the same helpers anywhere you need user understanding—marketing pages, dashboards, or server actions.
-
-### How the integration works
-
-1. **Connect** – start OAuth from your client experience and redirect users to the Mio dashboard.
-2. **Exchange** – hand the authorization code to your backend so it can store `refreshToken` securely and mint fresh access tokens.
-3. **Get Mio Context** – send `getContext` or `getContextSummary` requests with a valid `accessToken` to retrieve rich, ready-to-use context you can feed into any assistant, email, or workflow.
+1. **Connect**: start OAuth from your client experience and redirect users to the Mio dashboard.
+2. **Exchange**: hand the authorization code to your backend so it can store `refreshToken` securely and mint fresh access tokens.
+3. **Get Mio Context**: send `getContext` or `getContextSummary` requests with a valid `accessToken` to retrieve rich, ready-to-use context you can feed into any assistant, email, or workflow.
 
 <Tip>
   Prototype with the hosted defaults (`dashboard.mio.xyz`, `auth.mio.xyz`, `llm.mio.xyz`) and only override URLs when you move to a private environment.
 </Tip>
 
-### Jump into the quickstart
+## Quickstart
 
-Head over to the [Quickstart](/quickstart) to connect your OAuth client, wire the token exchange route, and start returning user personalized Mio Context in under 10 minutes.
+[Get Started with Mio in &lt;10 mins](/quickstart).
 
-## Why Mio?
+### Why Mio?
 
-- **Easy to plug into any workflow** – drop Mio into existing product surfaces (support inboxes, CRMs, dashboards, marketing pages) without redesigning your stack.
-- **User-personalized context from the first interaction** – Mio infers who your user is from their tools so every answer feels like it comes from an assistant that already knows them.
-- **More impact with less prompt engineering** – instead of crafting dozens of variants, you rely on Mio Context to tailor tone, examples, and recommendations automatically for each user.
+- **Simple integration**: add Mio to your app, chatbot, agent to make it personal in &gt;10 mins.
+- **Context seeding**: Mio derives preferences from existing datasource during onboarding. With Mio, users get answers from an assistant that already knows them from the first time they use your app.
+- **Focus on your product**: instead of spending months building your own context engine and integrating datasources, plug in Mio to make your AI app personal today.
 
 ## Get started & stay up to date
 
 - **Need guidance fast?** Read the [Overview](/guides/overview) to see responsibilities by layer before you start coding.
 - **Building today?** Follow the [Quickstart](/quickstart) end to end, then explore the [API reference](/api-reference/client-sdk) for every parameter and response.
-- **Want updates?** Subscribe to the waitlist from the navbar, book a call, or reach out via `support@mio.xyz` whenever you need help.
+- **Want updates?** Join the waitlist from the navbar, book a call, or reach out to `art@mio.xyz`.
 
 ## Next up
 
