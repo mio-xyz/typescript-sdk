@@ -1,13 +1,13 @@
-# @mio/sdk
+# @mio-xyz/sdk
 
 Mio SDK for authentication and personalized context access. It helps your app exchange OAuth tokens and fetch **Mio Context**—structured facts about each user—from their existing tools (like email and calendar).
 
 ## Installation
 
 ```bash
-npm add @mio/sdk
-yarn add @mio/sdk
-pnpm add @mio/sdk
+npm add @mio-xyz/sdk
+yarn add @mio-xyz/sdk
+pnpm add @mio-xyz/sdk
 ```
 
 ## Quick Start
@@ -15,7 +15,7 @@ pnpm add @mio/sdk
 ### Backend usage (exchange authorization code for tokens)
 
 ```typescript
-import { Mio } from '@mio/sdk/server';
+import { Mio } from '@mio-xyz/sdk/server';
 
 // Initialize once in your app (e.g. on server startup)
 Mio.init({
@@ -46,7 +46,7 @@ Wrap your app with `MioProvider` to initialize the SDK once, then consume `useMi
 'use client';
 
 import type { ReactNode } from 'react';
-import { MioProvider } from '@mio/sdk/react';
+import { MioProvider } from '@mio-xyz/sdk/react';
 
 const mioConfig = {
   clientId: process.env.NEXT_PUBLIC_MIO_CLIENT_ID!,
@@ -64,7 +64,7 @@ export function Providers({ children }: { children: ReactNode }) {
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useMio } from '@mio/sdk/react';
+import { useMio } from '@mio-xyz/sdk/react';
 
 export default function ChatPage() {
   const { connect, handleMioCallback, getContext, isLoading, error } = useMio();

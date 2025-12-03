@@ -1,12 +1,27 @@
 {
-  "name": "@mio/sdk",
+  "name": "@mio-xyz/sdk",
   "version": "1.0.4",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://docs.mio.xyz",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mio-xyz/typescript-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mio-xyz/typescript-sdk/issues"
+  },
+  "keywords": [
+    "mio"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md",
+    "README.md"
   ],
   "exports": {
     ".": {

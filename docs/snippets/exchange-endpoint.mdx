@@ -1,6 +1,6 @@
 ```typescript app/api/exchange-token/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { Mio } from '@mio/sdk/server';
+import { Mio } from '@mio-xyz/sdk/server';
 
 const mio = Mio.init({
   clientId: process.env.MIO_CLIENT_ID!,

@@ -1,6 +1,6 @@
 # Mio SDK documentation
 
-This directory hosts the public documentation for `@mio/sdk`. Pages are written in MDX, rendered with Mintlify, and grouped under `Guides` and `API reference` tabs.
+This directory hosts the public documentation for `@mio-xyz/sdk`. Pages are written in MDX, rendered with Mintlify, and grouped under `Guides` and `API reference` tabs.
 
 ## Prerequisites
 
