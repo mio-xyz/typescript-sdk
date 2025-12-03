@@ -1,6 +1,5 @@
 import eslint from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
-import turboConfigModule from 'eslint-config-turbo/flat';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -16,14 +15,8 @@ export default [
   eslint.configs.recommended,
   ...tseslint.configs.strict,
   eslintConfigPrettier,
-  ...turboConfigModule,
   {
     ignores: ['dist/**']
-  },
-  {
-    rules: {
-      'turbo/no-undeclared-env-vars': 'warn',
-    }
   },
   {
     files: ['**/env.ts'],

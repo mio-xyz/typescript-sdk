@@ -13,7 +13,7 @@ Wraps your React tree and ensures `Mio` is initialized exactly once.
 'use client';
 
 import type { ReactNode } from 'react';
-import { MioProvider } from '@mio/mio-sdk/react';
+import { MioProvider } from '@mio/sdk/react';
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -71,7 +71,7 @@ Fetches the latest stored Mio Context summary for the user.
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useMio } from '@mio/mio-sdk/react';
+import { useMio } from '@mio/sdk/react';
 
 export function MioActions() {
   const { connect, handleMioCallback, getContext, isLoading, error } = useMio();

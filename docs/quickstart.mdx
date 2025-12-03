@@ -23,16 +23,16 @@ description: "Connect your frontend and backend to Mio, exchange tokens securely
     Visit the <a href="https://dashboard.mio.xyz/developer" target="_blank" rel="noreferrer">Mio dashboard</a>, create an OAuth client, and copy the `clientId`, `clientSecret`, and redirect URL you intend to use locally. You need these values before any code changes.
   </Step>
 
-  <Step title="Use @mio/mio-sdk as a project dependency">
+  <Step title="Use @mio/sdk as a project dependency">
     <CodeGroup>
 ```bash npm
-npm install @mio/mio-sdk
+npm install @mio/sdk
 ```
 ```bash yarn
-yarn add @mio/mio-sdk
+yarn add @mio/sdk
 ```
 ```bash pnpm
-pnpm add @mio/mio-sdk
+pnpm add @mio/sdk
 ```
     </CodeGroup>
   </Step>
@@ -57,7 +57,7 @@ pnpm add @mio/mio-sdk
 'use client';
 
 import type { ReactNode } from 'react';
-import { MioProvider } from '@mio/mio-sdk/react';
+import { MioProvider } from '@mio/sdk/react';
 
 const mioConfig = {
   clientId: process.env.NEXT_PUBLIC_MIO_CLIENT_ID!,
@@ -77,7 +77,7 @@ export function Providers({ children }: { children: ReactNode }) {
 <button id="mio-connect">Connect with Mio</button>
 
 <script type="module">
-  import { Mio } from '@mio/mio-sdk/client';
+  import { Mio } from '@mio/sdk/client';
 
   const mio = Mio.init({
     clientId: 'YOUR_MIO_CLIENT_ID',
@@ -117,7 +117,7 @@ It is the bridge between the redirect and your stored tokens:
 
 ```typescript app/api/exchange-token/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { Mio } from '@mio/mio-sdk/server';
+import { Mio } from '@mio/sdk/server';
 
 const mio = Mio.init({
   clientId: process.env.MIO_CLIENT_ID!,
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
 
 ```typescript src/routes/mio.ts
 import express from 'express';
-import { Mio } from '@mio/mio-sdk/server';
+import { Mio } from '@mio/sdk/server';
 
 const router = express.Router();
 const mio = Mio.init({
@@ -184,7 +184,7 @@ export default router;
 'use client';
 
 import { useState } from 'react';
-import { useMio } from '@mio/mio-sdk/react';
+import { useMio } from '@mio/sdk/react';
 
 export default function HomePage() {
   const { connect, handleMioCallback, getContextSummary, isLoading, error } = useMio();
@@ -234,7 +234,7 @@ export default function HomePage() {
 </section>
 
 <script type="module">
-  import { Mio } from '@mio/mio-sdk/client';
+  import { Mio } from '@mio/sdk/client';
 
   const mio = Mio.init({
     clientId: 'YOUR_MIO_CLIENT_ID',
