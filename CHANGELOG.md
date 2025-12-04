@@ -7,8 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.6] - 2025-12-04
+
+### Fixed
+- Updated Mio dashboard URL
+
+## [1.0.5] - 2025-12-03
+
 ### Added
 - Explicit ESLint dependencies
+- npm publish metadata and documentation included in package
 
 ### Changed
 - Moved `react` to peerDependencies (optional, only required for /react entry)
