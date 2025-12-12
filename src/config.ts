@@ -28,4 +28,4 @@ export interface MioServerSDKConfig extends MioServerSDKInitConfig, MioBaseSDKCo
 }
 
 export const DEFAULT_MIO_API_URL = 'https://api.mio.xyz';
-export const DEFAULT_MIO_DASHBOARD_URL = 'https://mio.xyz';
+export const DEFAULT_MIO_DASHBOARD_URL = 'https://app.mio.xyz';
