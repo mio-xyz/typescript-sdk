@@ -18,5 +18,5 @@ export interface MioServerSDKInitConfig extends MioBaseSDKInitConfig {
 export interface MioServerSDKConfig extends MioServerSDKInitConfig, MioBaseSDKConfig {
 }
 export declare const DEFAULT_MIO_API_URL = "https://api.mio.xyz";
-export declare const DEFAULT_MIO_DASHBOARD_URL = "https://mio.xyz";
+export declare const DEFAULT_MIO_DASHBOARD_URL = "https://app.mio.xyz";
 //# sourceMappingURL=config.d.ts.map
