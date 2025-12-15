@@ -87,7 +87,7 @@
     "primary": {
       "type": "button",
       "label": "Create an app",
-      "href": "https://mio.xyz/developer/"
+      "href": "https://app.mio.xyz/developer"
     }
   },
   "contextual": {
