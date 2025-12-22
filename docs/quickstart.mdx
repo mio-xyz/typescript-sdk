@@ -20,7 +20,14 @@ description: "Connect your frontend and backend to Mio, exchange tokens securely
 
 <Steps>
   <Step title="Register your app">
-    Visit the <a href="https://app.mio.xyz/developer" target="_blank" rel="noreferrer">Mio dashboard</a>, create an OAuth client, and copy the `clientId`, `clientSecret`, and redirect URL you intend to use locally. You need these values before any code changes.
+    Visit the <a href="https://app.mio.xyz/developer" target="_blank" rel="noreferrer">Mio dashboard</a> and create an OAuth client. You will need to provide:
+
+    - **App Name** — A display name for your application.
+    - **Redirect URI** — The URL Mio redirects to after authentication (e.g., `https://your-app.com/callback`).
+    - **Description** *(optional)* — Describe what your app does and how it will use the user's data. This helps Mio generate more relevant context for your application.
+    - **Questions** *(optional)* — Specify the questions you want to ask about your users (e.g., "What are my upcoming meetings?", "What are my dietary preferences?"). These questions are used to generate the `app_specific_user_profile` field in the Mio Context response, providing answers tailored to your app's needs.
+
+    After registration, copy the `clientId`, `clientSecret`, and redirect URL. You need these values before any code changes.
   </Step>
 
   <Step title="Use @mio-xyz/sdk as a project dependency">
