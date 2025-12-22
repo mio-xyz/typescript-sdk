@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.8] - 2025-12-22
+
+### Added
+- Documentation for app-specific description and questions fields in quickstart guide
+
 ## [1.0.7] - 2025-12-15
 
 ### Fixed
