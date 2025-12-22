@@ -53,7 +53,7 @@
     "checks": "npm run lint && npm run prettier:check && npm run build"
   },
   "dependencies": {
-    "zod": "^4.1.13"
+    "zod": "^4.2.1"
   },
   "peerDependencies": {
     "react": ">=18.0.0"
