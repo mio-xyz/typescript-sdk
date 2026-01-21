@@ -83,9 +83,6 @@ export abstract class BaseMioSDK {
     }
 
     const data = await response.json();
-    if (!data || !data.summary) {
-      throw new Error('Invalid summary response');
-    }
-    return data.summary;
+    return data?.summary ?? null;
   }
 }

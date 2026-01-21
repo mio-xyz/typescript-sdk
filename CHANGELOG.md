@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.9] - 2025-01-21
+
+### Changed
+- `getContextSummary` now returns `null` instead of throwing an error when no summary exists to notify the user
+
 ## [1.0.8] - 2025-12-22
 
 ### Added

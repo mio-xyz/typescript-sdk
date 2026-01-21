@@ -46,10 +46,7 @@ export class BaseMioSDK {
             throw new Error('Failed to get user summary');
         }
         const data = await response.json();
-        if (!data || !data.summary) {
-            throw new Error('Invalid summary response');
-        }
-        return data.summary;
+        return data?.summary ?? null;
     }
 }
 //# sourceMappingURL=base.js.map
